@@ -1,0 +1,22 @@
+{
+  "name"           : "node-flower-power-cloud"
+, "version"        : "0.0.1"
+, "description"    : "A node.js module to interface with the cloud service for the Parrot Flower Power"
+, "author"         : {
+    "name"         : "Marshall Rose"
+  , "email"        : "mrose17@gmail.com"
+  }
+, "repository"     : {
+    "type"         : "git"
+  , "url"          : "https://github.com/TheThingSystem/node-flower-power-cloud.git"
+  } 
+, "bugs"           : {
+    "url"          : "https://github.com/TheThingSystem/node-flower-power-cloud/issues"
+  }
+, "keywords"       : [ "Parrot", "Flower Power" ]
+, "main"           : "./flower-power-cloud.js"
+, "engines"        : {
+    "node"         : ">=0.8"
+  }
+, "readmeFilename" : "README.md"
+}
