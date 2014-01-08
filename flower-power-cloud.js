@@ -10,10 +10,6 @@ var https       = require('https')
   ;
 
 
-var DEFAULT_CONFIG = { clientID     : ''
-                     , clientSecret : ''
-                     };
-
 var DEFAULT_LOGGER = { error   : function(msg, props) { console.log(msg); if (!!props) console.log(props);             }
                      , warning : function(msg, props) { console.log(msg); if (!!props) console.log(props);             }
                      , notice  : function(msg, props) { console.log(msg); if (!!props) console.log(props);             }
@@ -30,11 +26,6 @@ var CloudAPI = function(options) {
   if (!(self instanceof CloudAPI)) return new CloudAPI(options);
 
   self.options = options;
-
-  self.config = self.options.config || {};
-  for (k in DEFAULT_CONFIG) {
-    if ((DEFAULT_CONFIG.hasOwnProperty(k)) && (typeof self.config[k] === 'undefined'))  self.config[k] = DEFAULT_CONFIG[k];
-  }
 
   self.logger = self.options.logger  || {};
   for (k in DEFAULT_LOGGER) {
