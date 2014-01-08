@@ -57,11 +57,13 @@ CloudAPI.prototype.login = function(username, passphrase, callback) {
 
     self.oauth = results;
 
+/*
     if (!!self.timer) {
       clearTimeout(self.timer);
       delete(self.timer);
     }
     if (!!results.expires_in) self.timer = setTimeout(function() { self._refresh(self); }, (results.expires_in - 120) * 1000);
+ */
 
     callback(null);
   });
@@ -87,7 +89,6 @@ CloudAPI.prototype._refresh = function(self, callback) {
          , refresh_token : self.oauth.refresh_token
          , grant_type    : 'refresh_token'
          };
-  delete(self.oauth.access_token);
   self.invoke('POST', '/user/v1/authenticate', json, function(err, code, results) {
     if (!!err) callback(err);
 
@@ -201,12 +202,14 @@ CloudAPI.prototype.invoke = function(method, path, json, callback) {
   options.agent = false;
   options.method = method;
   options.headers = {};
+  if ((!!self.oauth.access_token) && ((!json) || (!json.grant_type))) {
+    options.headers.Authorization = 'Bearer ' + self.oauth.access_token;
+  }
   if (!!json) {
     options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
     json = querystring.stringify(json);
     options.headers['Content-Length'] = Buffer.byteLength(json);
   }
-  if (!!self.oauth.access_token) options.headers.Authorization = 'Bearer ' + self.oauth.access_token;
 
   https.request(options, function(response) {
     var body = '';
