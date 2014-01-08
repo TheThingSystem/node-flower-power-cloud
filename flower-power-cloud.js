@@ -56,18 +56,31 @@ CloudAPI.prototype.login = function(username, passphrase, callback) {
     if (code !== 200) return callback(new Error('invalid credentials: code=' + code + 'results=' + JSON.stringify(results)));
 
     self.oauth = results;
+
+    if (!!self.timer) {
+      clearTimeout(self.timer);
+      delete(self.timer);
+    }
+    if (!!results.expires_in) self.timer = setTimeout(function() { self._refresh(self); }, (results.expires_in - 120) * 1000);
+
     callback(null);
   });
 
   return self;
 };
 
-CloudAPI.prototype._refresh = function(callback) {
+CloudAPI.prototype._refresh = function(self, callback) {
   var json;
 
-  var self = this;
+  delete(self.timer);
 
-  if (typeof callback !== 'function') throw new Error('callback is mandatory for refresh');
+  if (!callback) {
+    callback = function(err) {
+      if (!!err) return self.logger.error('refresh', { exception: err });
+
+      self.logger.info('refresh', { status: 'success' });
+    };
+  }
 
   json = { client_id     : self.options.clientID
          , client_secret : self.options.clientSecret
@@ -75,17 +88,15 @@ CloudAPI.prototype._refresh = function(callback) {
          , grant_type    : 'refresh_token'
          };
   delete(self.oauth.access_token);
-  self.invoke('POST', '/oauth2/token', json, function(err, code, results) {
+  self.invoke('POST', '/user/v1/authenticate', json, function(err, code, results) {
     if (!!err) callback(err);
 
-    if (code !== 201) {
-      return callback(new Error('invalid credentials: '
-                        + (((!!results) && (!!results.data) && (!!results.data.error) ? results.data.error
-                                                                                      : JSON.stringify(results)))));
-    }
+    if (code !== 200) return callback(new Error('invalid credentials: code=' + code + 'results=' + JSON.stringify(results)));
 
-    if (!results.data) return callback(new Error('invalid response: ' + JSON.stringify(results)));
-    self.oauth = results.data;
+    self.oauth = results;
+
+    if (!!results.expires_in) self.timer = setTimeout(function() { self._refresh(self); }, (results.expires_in - 120) * 1000);
+
     callback(null);
   });
 
@@ -96,13 +107,80 @@ CloudAPI.prototype._refresh = function(callback) {
 CloudAPI.prototype.getGarden = function(callback) {
   var self = this;
 
-  return self.invoke('GET', '/users/me/wink_devices', function(err, code, results) {
+  return self.invoke('GET', '/sensor_data/v2/sync?include_s3_urls=1', function(err, code, results) {
+    var count, i, location, locations, sensor, sensors;
+
     if (!!err) return callback(err);
 
-    callback(null, code, results);
+    var f = function(id) {
+      return function(err, results) {
+        if (!!err) self.logger.error('invoke', { exception: err }); else locations[id].samples = results.samples;
+
+        if (--count === 0) callback(null, locations, sensors);
+      };
+    };
+
+    count = 0;
+
+
+    sensors = {};
+    for (i = 0; i < results.sensors.length; i++) {
+      sensor = results.sensors[i];
+      sensors[sensor.sensor_serial] = sensor;
+    }
+
+    locations = {};
+    for (i = 0; i < results.locations.length; i++) {
+      location = results.locations[i];
+      locations[location.location_identifier] = location;
+
+      count++;
+      self.roundtrip('GET', '/sensor_data/v2/sample/location/' + location.location_identifier
+                     + '?from_datetime_utc=' + location.last_sample_utc, f(location.location_identifier));
+    }
+
+    count++;
+    self.roundtrip('GET', '/sensor_data/v1/garden_locations_status', function(err, results) {
+      var i, id;
+
+      if (!!err) self.logger.error('invoke', { exception: err }); 
+      else {
+        for (i = 0; i < results.locations.length; i++) {
+          location = results.locations[i];
+          id = location.location_identifier;
+          delete(location.location_identifier);
+
+          locations[id].status = location;
+        }          
+      }
+
+      if (--count === 0) callback(null, locations, sensors);
+    });
   });
 };
 
+
+CloudAPI.prototype.roundtrip = function(method, path, json, callback) {
+  var self = this;
+
+  if (typeof json === 'function') {
+    callback = json;
+    json = null;
+  }
+
+  return self.invoke(method, path, function(err, code, results) {
+    var errors;
+
+    if (!!err) return callback(err);
+
+    errors = (!!results.errors) && util.isArray(results.errors) && (results.errors.length > 0) && results.errors;
+    if (!!errors) {
+      return callback(new Error('invalid response: ' + JSON.stringify(!!errors ? errors : results)));
+    }
+
+    callback(null, results);
+  });
+};
 
 CloudAPI.prototype.invoke = function(method, path, json, callback) {
   var options;
@@ -128,7 +206,7 @@ CloudAPI.prototype.invoke = function(method, path, json, callback) {
     json = querystring.stringify(json);
     options.headers['Content-Length'] = Buffer.byteLength(json);
   }
-  if (!!self.oauth.access_token) options.headers.Authorization = 'Bearer ' + self.oauth_access.token;
+  if (!!self.oauth.access_token) options.headers.Authorization = 'Bearer ' + self.oauth.access_token;
 
   https.request(options, function(response) {
     var body = '';

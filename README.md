@@ -48,20 +48,12 @@ API
       console.log('background error: ' + err.message);
     });
 
-### Get user information
+### Get garden information
 
-    flower-power-cloud.getUser(function(err, code, user) {
-      if (!!err) return console.log('getUser: ' + err.message);
+    flower-power-cloud.getGarden(function(err, plants, sensors) {
+      if (!!err) return console.log('getGarden: ' + err.message);
 
-      // inspect user
-    }
-
-### Get device information
-
-    flower-power-cloud.getDevices(function(err, code, devices) {
-      if (!!err) return console.log('getDevices: ' + err.message);
-
-      // inspect devices
+      // inspect plants{} and sensors{}
     }
 
 Finally
