@@ -1,9 +1,9 @@
 var CloudAPI = require('./flower-power-cloud');
 
-var clientID     = 'mrose17@icloud.com'
-  , clientSecret = 'K567BeT6wnd56vhMs39eaBXi4pWd8Y84ixAXinCRTPAfvjyq'
-  , userName     = 'mrose17@icloud.com'
-  , passPhrase   = 'HYHuKrpXJPwyCHpsB2btvDpA7jkTop'
+var clientID     = '...'
+  , clientSecret = '...'
+  , userName     = '...'
+  , passPhrase   = '...'
   , api
   ;
 
