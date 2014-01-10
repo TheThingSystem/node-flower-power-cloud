@@ -164,12 +164,12 @@ CloudAPI.prototype.getGarden = function(callback) {
 CloudAPI.prototype.roundtrip = function(method, path, json, callback) {
   var self = this;
 
-  if (typeof json === 'function') {
+  if ((!callback) && (typeof json === 'function')) {
     callback = json;
     json = null;
   }
 
-  return self.invoke(method, path, function(err, code, results) {
+  return self.invoke(method, path, json, function(err, code, results) {
     var errors;
 
     if (!!err) return callback(err);
@@ -188,7 +188,7 @@ CloudAPI.prototype.invoke = function(method, path, json, callback) {
 
   var self = this;
 
-  if (typeof json === 'function') {
+  if ((!callback) && (typeof json === 'function')) {
     callback = json;
     json = null;
   }
