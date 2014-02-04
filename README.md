@@ -1,8 +1,6 @@
 node-flower-power-cloud
 =======================
 
-**NB: this module is not completed yet. soon, very soon!**
-
 A node.js module to interface with the [cloud service](https://github.com/parrot-flower-power/parrot-flower-power-api-example)
 for the Parrot [Flower Power](http://www.parrot.com/flowerpower/).
 
@@ -28,7 +26,7 @@ API
 
 ### Load
 
-    var CloudAPI = require('node-flower-power-cloud');
+    var CloudAPI = require('flower-power-cloud');
 
 ### Login to cloud
 
