@@ -1,6 +1,6 @@
 {
   "name"           : "flower-power-cloud"
-, "version"        : "0.2.0"
+, "version"        : "0.2.1"
 , "description"    : "A node.js module to interface with the cloud service for the Parrot Flower Power"
 , "author"         : {
     "name"         : "Marshall Rose"
