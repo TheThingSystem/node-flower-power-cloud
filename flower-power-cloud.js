@@ -53,7 +53,7 @@ CloudAPI.prototype.login = function(username, passphrase, callback) {
   self.invoke('POST', '/user/v1/authenticate', json, function(err, code, results) {
     if (!!err) callback(err);
 
-    if (code !== 200) return callback(new Error('invalid credentials: code=' + code + 'results=' + JSON.stringify(results)));
+    if (code !== 200) return callback(new Error('invalid credentials: code=' + code + ' results=' + JSON.stringify(results)));
 
     self.oauth = results;
 
@@ -115,7 +115,8 @@ CloudAPI.prototype.getGarden = function(callback) {
 
     var f = function(id) {
       return function(err, results) {
-        if (!!err) self.logger.error('invoke', { exception: err }); else locations[id].samples = results.samples;
+          if (!!err) self.logger.error('invoke', { event: 'sync', diagnostic: err.message });
+        else locations[id].samples = results.samples;
 
         if (--count === 0) callback(null, locations, sensors);
       };
@@ -144,7 +145,7 @@ CloudAPI.prototype.getGarden = function(callback) {
     self.roundtrip('GET', '/sensor_data/v1/garden_locations_status', function(err, results) {
       var i, id;
 
-      if (!!err) self.logger.error('invoke', { exception: err }); 
+      if (!!err) self.logger.error('invoke', { event: 'garden_locations_status', diagnostic: err.message });
       else {
         for (i = 0; i < results.locations.length; i++) {
           location = results.locations[i];
@@ -201,6 +202,7 @@ CloudAPI.prototype.invoke = function(method, path, json, callback) {
   options = url.parse('https://apiflowerpower.parrot.com' + path);
   options.agent = false;
   options.method = method;
+  options.rejectUnauthorized = false;    // self-signed certificate?
   options.headers = {};
   if ((!!self.oauth.access_token) && ((!json) || (!json.grant_type))) {
     options.headers.Authorization = 'Bearer ' + self.oauth.access_token;
