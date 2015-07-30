@@ -108,6 +108,8 @@ CloudAPI.prototype._refresh = function(self, callback) {
 
 CloudAPI.prototype.getGarden = function(callback) {
   var self = this;
+  var tabSensorSerial  = [];
+  var tabHistoryIndex = [];
 
   return self.invoke('GET', '/sensor_data/v3/sync?include_s3_urls=1', function(err, code, results) {
     var count, i, location, locations, sensor, sensors, user_config_version;
@@ -119,7 +121,7 @@ CloudAPI.prototype.getGarden = function(callback) {
           if (!!err) self.logger.error('invoke', { event: 'sync', diagnostic: err.message });
         else locations[id].samples = results.samples;
 
-        if (--count === 0) callback(null, locations, sensors, user_config_version);
+        if (--count === 0) callback(null, locations, sensors, tabSensorSerial, tabHistoryIndex, user_config_version);
       };
     };
 
@@ -129,17 +131,8 @@ CloudAPI.prototype.getGarden = function(callback) {
     sensors = {};
     for (i = 0; i < results.sensors.length; i++) {
       sensor = results.sensors[i];
+      tabSensorSerial.push(sensor.sensor_serial);
       sensors[sensor.sensor_serial] = sensor;
-    }
-
-    locations = {};
-    for (i = 0; i < results.locations.length; i++) {
-      location = results.locations[i];
-      locations[location.location_identifier] = location;
-
-      count++;
-      self.roundtrip('GET', '/sensor_data/v2/sample/location/' + location.location_identifier
-                     + '?from_datetime_utc=' + location.last_sample_utc, f(location.location_identifier));
     }
 
     count++;
@@ -152,14 +145,16 @@ CloudAPI.prototype.getGarden = function(callback) {
           location = results.locations[i];
           id = location.location_identifier;
           delete(location.location_identifier);
-          for (i = 0; i < results.sensors.length; i++) {
-            sensor = results.sensors[i];
-          }
-          locations[id].status = location;
+          
+        for (i = 0; i < results.sensors.length; i++) {
+          sensor = results.sensors[i];
+          tabHistoryIndex.push(sensor.current_history_index);
+    }
+
         }          
       }
 
-      if (--count === 0) callback(null, locations, sensors, user_config_version);
+      if (--count === 0) callback(null, sensors, tabSensorSerial, tabHistoryIndex, user_config_version);
     });
   });
 };
