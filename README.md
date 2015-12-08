@@ -15,44 +15,41 @@ You will need OAuth tokens and a Flower Power account:
 launch the [iOS](https://itunes.apple.com/us/app/apple-store/id712479884), and follow the directions to create an account.
 (Apparently there isn't an Android app yet).
 
-
-Install
--------
-
-    npm install flower-power-cloud
-
 API
 ---
 
 ### Load
-
-    var CloudAPI = require('flower-power-cloud');
+```js
+var FlowerPowerCloud = require('./FlowerPowerCloud');
+var api = new FlowerPowerCloud();
+```
 
 ### Login to cloud
+```js
+var credential = {
+	'username'		: "...",
+	'password'		: "...",
+	'client_id'		: "...",
+	'client_secret'	: "...",
+};
 
-    var clientID     = '...'
-      , clientSecret = '...'
-      , userName     = '...'
-      , passPhrase   = '...'
-      , api
-      ;
-
-    api = new CloudAPI.CloudAPI({ clientID     : clientID
-                                , clientSecret : clientSecret }).login(userName, passPhrase, function(err) {
-      if (!!err) return console.log('login error: ' + err.message);
-
-      // otherwise, good to go!
-    }).on('error', function(err) {
-      console.log('background error: ' + err.message);
-    });
+api.login(credential, function(err, res) {
+	if (err) console.log(err);
+	else {
+		// Head in the clouds :)
+	}
+});
+```
 
 ### Get garden information
-
-    flower-power-cloud.getGarden(function(err, plants, sensors) {
-      if (!!err) return console.log('getGarden: ' + err.message);
-
-      // inspect plants{} and sensors{}
-    }
+```js
+api.getGarden(function(err, garden) {
+	if (err) console.log(err);
+	else {
+		// Beautiful flowers!
+	}
+});
+```
 
 Finally
 -------
