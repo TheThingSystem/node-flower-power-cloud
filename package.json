@@ -1,6 +1,6 @@
 {
 	"name": "flower-power-cloud",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "A node.js module to interface with the cloud service for the Parrot Flower Power",
 	"author": {
 		"name": "Bruno Sautron",

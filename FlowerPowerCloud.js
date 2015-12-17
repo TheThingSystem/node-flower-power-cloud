@@ -1,4 +1,5 @@
 var ApiError = require('./ApiError');
+var async = require('async');
 var request = require('request');
 var qs = require('querystring');
 var clc = require('cli-color');
@@ -13,9 +14,10 @@ function FlowerPowerCloud() {
 
 	var self = this;
 	var api = {
-		'getGarden': {method: 'GET/json', path: '/sensor_data/v4/garden_locations_status', auth: true},
+		'getSyncGarden': {method: 'GET/json', path: '/sensor_data/v4/garden_locations_status', auth: true},
 		'getProfile': {method: 'GET/json', path: '/user/v4/profile', auth: true},
-		'sendSamples': {method: 'PUT/json', path: '/sensor_data/v5/sample', auth: true}
+		'sendSamples': {method: 'PUT/json', path: '/sensor_data/v5/sample', auth: true},
+		'getSyncData': {method: 'GET/json', path: '/sensor_data/v3/sync', auth: true}
 	};
 
 	for (var item in api) {
@@ -95,14 +97,32 @@ FlowerPowerCloud.prototype.invoke = function(req, data, callback) {
 	if (DEBUG) console.log(options);
 	request(options, function(err, res, body) {
 		if (err) callback(err);
-		else if (res.statusCode != 200 || (typeof body.errors != 'undefined' && body.errors.length > 0)) { var errorContent = null;
-
+		else if (res.statusCode != 200 || (typeof body.errors != 'undefined' && body.errors.length > 0)) {
+			var errorContent = null;
 			if (typeof body == 'object') errorContent = JSON.parse(body);
 			else errorContent = body;
 			return callback(new ApiError(res.statusCode, errorContent));
 		}
 		else if (callback) {
-			return callback(null, JSON.parse(body));
+			var results = JSON.parse(body);
+
+			if (typeof results.sensors != 'undefined') {
+				var sensors = {};
+				for (var i = 0; i < results.sensors.length; i++) {
+					sensors[results.sensors[i].sensor_serial] = results.sensors[i];
+				}
+				results.sensors = sensors;
+			}
+			if (typeof results.locations != 'undefined') {
+				var locations = {};
+				for (var i = 0; i < results.locations.length; i++) {
+					locations[results.locations[i].sensor_serial] = results.locations[i];
+				}
+				results.locations = locations;
+			}
+			results.sensors = self.concatJson(results.sensors, results.locations);
+			delete results.locations;
+			return callback(null, results);
 		}
 		else throw "Give me a callback";
 	});
@@ -148,6 +168,37 @@ FlowerPowerCloud.prototype.refresh = function(token) {
 		else self.getToken(res);
 	});
 };
+
+FlowerPowerCloud.prototype.getGarden = function(callback) {
+	var self = this;
+
+	async.parallel({
+		syncGarden: function(callback) {
+			self.getSyncGarden(callback);
+		},
+		syncData: function(callback) {
+			self.getSyncData(callback);
+		}
+	}, function(err, res) {
+		if (err) callback(err);
+		else callback(null, self.concatJson(res.syncData, res.syncGarden));
+	});
+};
+
+FlowerPowerCloud.prototype.concatJson = function(json1, json2) {
+	var dest = json1;
+	var self = this;
+
+	for (var key in json2) {
+		if (typeof json1[key] == 'object' && typeof json2[key] == 'object') {
+			dest[key] = self.concatJson(json1[key], json2[key]);
+		}
+		else {
+			dest[key] = json2[key];
+		}
+	}
+	return dest;
+}
 
 
 module.exports = FlowerPowerCloud;
