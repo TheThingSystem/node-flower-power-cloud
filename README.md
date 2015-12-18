@@ -18,10 +18,15 @@ launch the [iOS](https://itunes.apple.com/us/app/apple-store/id712479884), and f
 API
 ---
 
+### Install
+```bash
+$ npm install flower-power-api
+```
+
 ### Load
 ```js
-var FlowerPowerCloud = require('./FlowerPowerCloud');
-var api = new FlowerPowerCloud();
+var FlowerPowerApi = require('flower-power-api');
+var api = new FlowerPowerApi();
 ```
 
 ### Login to cloud
@@ -41,14 +46,32 @@ api.login(credential, function(err, res) {
 });
 ```
 
-### Get garden information
+### Get garden configuration
 ```js
-api.getGarden(function(err, garden) {
-	if (err) console.log(err);
-	else {
-		// Beautiful flowers!
-	}
-});
+api.getGarden(function(error, garden));
+```
+
+### Communicate with Cloud
+Every method have the sema pattern:
+```js
+api.methodName([data,] callback);
+
+typeof data == object // json
+callback == function(error, results);
+
+// Call them
+api.getGarden(callback);
+api.getSyncGarden(callback);
+api.getSyncData(callback);
+api.sendSamples(data, callback);
+
+// More details into ./FlowerPowerCloud.js
+var api = {
+	'getSyncGarden': {method: 'GET/json', path: '/sensor_data/v4/garden_locations_status', auth: true},
+	'getProfile': {method: 'GET/json', path: '/user/v4/profile', auth: true},
+	'sendSamples': {method: 'PUT/json', path: '/sensor_data/v5/sample', auth: true},
+	'getSyncData': {method: 'GET/json', path: '/sensor_data/v3/sync', auth: true}
+};
 ```
 
 Finally
