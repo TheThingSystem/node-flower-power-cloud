@@ -1,6 +1,6 @@
 {
   "name": "flower-power-api",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "A node.js module which use the Parrot Flower Power API",
   "author": "Bruno Sautron <sautron.brunojj@gmail.com>",
   "repository": {
