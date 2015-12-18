@@ -1,4 +1,4 @@
-node-flower-power-cloud
+flower-power-api
 =======================
 
 A node.js module to interface with the [cloud service](https://github.com/parrot-flower-power/parrot-flower-power-api-example)
