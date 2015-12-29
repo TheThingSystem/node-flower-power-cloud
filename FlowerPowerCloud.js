@@ -109,14 +109,18 @@ FlowerPowerCloud.prototype.invoke = function(req, data, callback) {
 			if (typeof results.sensors != 'undefined') {
 				var sensors = {};
 				for (var i = 0; i < results.sensors.length; i++) {
-					sensors[results.sensors[i].sensor_serial] = results.sensors[i];
+					if (typeof results.sensors[i].sensor_serial != 'undefined' && results.sensors[i].sensor_serial) {
+						sensors[results.sensors[i].sensor_serial] = results.sensors[i];
+					}
 				}
 				results.sensors = sensors;
 			}
 			if (typeof results.locations != 'undefined') {
 				var locations = {};
 				for (var i = 0; i < results.locations.length; i++) {
-					locations[results.locations[i].sensor_serial] = results.locations[i];
+					if (typeof results.locations[i].sensor_serial != 'undefined' && results.locations[i].sensor_serial) {
+						locations[results.locations[i].sensor_serial] = results.locations[i];
+					}
 				}
 				results.locations = locations;
 			}
