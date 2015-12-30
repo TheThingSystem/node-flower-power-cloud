@@ -96,15 +96,13 @@ FlowerPowerCloud.prototype.invoke = function(req, data, callback) {
 
 	if (DEBUG) console.log(options);
 	request(options, function(err, res, body) {
-		if (err) callback(err);
-		else if (res.statusCode != 200 || (typeof body.errors != 'undefined' && body.errors.length > 0)) {
-			var errorContent = null;
-			if (typeof body == 'object') errorContent = JSON.parse(body);
-			else errorContent = body;
-			return callback(new ApiError(res.statusCode, errorContent));
+		if (typeof body == 'string') body = JSON.parse(body);
+		if (err) callback(err, null);
+		else if (res.statusCode != 200 || (body.errors && body.errors.length > 0)) {
+			return callback(new ApiError(res.statusCode, body), null);
 		}
 		else if (callback) {
-			var results = JSON.parse(body);
+			var results = body;
 
 			if (typeof results.sensors != 'undefined') {
 				var sensors = {};

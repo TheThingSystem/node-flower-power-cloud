@@ -2,10 +2,11 @@ function ApiError(code, body) {
 	this.code = code;
 	this.errors = [];
 
-	if (typeof body.errors != 'undefined' && body.errors.length > 0) {
+	if (body.errors && body.errors.length > 0) {
 		this.errors = body.errors;
 	}
 	else this.errors.push(body);
+	return (this);
 }
 
 ApiError.prototype = new Error;
@@ -15,12 +16,16 @@ ApiError.prototype.toString = function() {
 
 	for (var i = 0; i < this.errors.length; i++) {
 		str += "\n";
-		if (typeof this.errors[i].error != '!undefined' && typeof this.errors[i].error_description != 'undefined') {
+
+		if (this.errors[i].error && this.errors[i].error_description) {
 			str += this.errors[i].error + ": " + this.errors[i].error_description;
-		}
-		else {
+		} else if (this.errors[i].error_code && this.errors[i].error_message) {
 			str += this.errors[i].error_code + ": " + this.errors[i].error_message;
+		} else {
+			var key = Object.keys(this.errors[i])[0];
+			str += key + ": " + this.errors[i][key];
 		}
+
 	}
 	return (str);
 }

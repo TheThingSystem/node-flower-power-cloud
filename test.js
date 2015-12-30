@@ -11,7 +11,7 @@ var credential = {
 };
 
 api.login(credential, function(err, res) {
-	if (err) console.log(err);
+	if (err) console.log(err.toString());
 	else {
 		api.getGarden(function(err, res) {
 			console.log(res);
