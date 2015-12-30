@@ -11,6 +11,7 @@ function FlowerPowerCloud() {
 	this._token = {};
 	this._isLogged = false;
 	this.credentials = {};
+	this.autoRefresh = false;
 
 	var self = this;
 	var api = {
@@ -134,23 +135,29 @@ FlowerPowerCloud.prototype.login = function(data, callback) {
 	var req = {method: 'POST/urlencoded', path: '/user/v2/authenticate'};
 	var self = this;
 
+	if (data['auto-refresh']) {
+		self.autoRefresh = data['auto-refresh'];
+		delete data['auto-refresh'];
+	}
 	self.credentials = data;
 	data['grant_type'] = 'password';
 	self.invoke(req, data, function(err, res) {
 		if (err) callback(err);
-		else self.getToken(res, callback);
+		else self.setToken(res, callback);
 	});
 };
 
-FlowerPowerCloud.prototype.getToken = function(token, callback) {
+FlowerPowerCloud.prototype.setToken = function(token, callback) {
 	var self = this;
 
 	self._token = token;
 	self._isLogged = true;
-	var job = new schedule.Job(function() {
-		self.refresh(token);
-	});
-	job.schedule(new Date(Date.now() + (token['expires_in'] - 1440) * 1000));
+	if (self.autoRefresh) {
+		var job = new schedule.Job(function() {
+			self.refresh(token);
+		});
+		job.schedule(new Date(Date.now() + (token['expires_in'] - 1440) * 1000));
+	}
 	if (typeof callback != 'undefined') callback(null, token);
 }
 
@@ -167,7 +174,7 @@ FlowerPowerCloud.prototype.refresh = function(token) {
 
 	self.invoke(req, data, function(err, res) {
 		if (err) callback(err);
-		else self.getToken(res);
+		else self.setToken(res);
 	});
 };
 

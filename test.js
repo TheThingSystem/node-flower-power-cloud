@@ -3,14 +3,15 @@ var async = require('async');
 
 var api = new FlowerPowerCloud();
 
-var credential = {
+var credentials = {
 	'username'		: "...",
 	'password'		: "...",
 	'client_id'		: "...",
 	'client_secret'	: "...",
+	'auto-refresh'	: true
 };
 
-api.login(credential, function(err, res) {
+api.login(credentials, function(err, res) {
 	if (err) console.log(err.toString());
 	else {
 		api.getGarden(function(err, res) {
