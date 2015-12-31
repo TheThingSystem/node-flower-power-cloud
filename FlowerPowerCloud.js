@@ -4,7 +4,7 @@ var request = require('request');
 var qs = require('querystring');
 var schedule = require('node-schedule');
 
-var DEBUG = true;
+var DEBUG = false;
 
 function FlowerPowerCloud() {
 	this._token = {};
@@ -79,7 +79,7 @@ FlowerPowerCloud.prototype.makeUrl = function(req, data) {
 FlowerPowerCloud.prototype.loggerReq = function(req, data) {
 	console.log(req.method, req.path);
 	for (var key in data) {
-		console.log(key + ":", data[key]));
+		console.log(key + ":", data[key]);
 	}
 };
 
