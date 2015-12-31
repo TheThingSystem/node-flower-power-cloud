@@ -1,22 +1,18 @@
-flower-power-api
-=======================
+# flower-power-api
+
+[![NPM](https://nodei.co/npm/flower-power-api.png)](https://nodei.co/npm/flower-power-api/)
 
 A node.js module to interface with the [cloud service](https://github.com/parrot-flower-power/parrot-flower-power-api-example)
 for the Parrot [Flower Power](http://www.parrot.com/flowerpower/).
 
 
-Before Starting
----------------
-You will need OAuth tokens and a Flower Power account:
+## Get your access API
+* `username` `password`
+	* Make sure you have an account created by your smartphone. You should be see your garden: [myflowerpower.parrot.com](https://myflowerpower.parrot.com).
+* `client_id` `client_secret`
+	* [Sign up to API here](https://apiflowerpower.parrot.com/api_access/signup), and got by **email** your *Access ID* (`client_id`) and your *Access secret* (`client_secret`).
 
-- To get the OAuth tokens, use this [form](https://apiflowerpower.parrot.com/api_access/signup)
-
-- To get a Flower power account,
-launch the [iOS](https://itunes.apple.com/us/app/apple-store/id712479884), and follow the directions to create an account.
-(Apparently there isn't an Android app yet).
-
-API
----
+## API
 
 ### Install
 ```bash
@@ -36,6 +32,7 @@ var credential = {
 	'password'		: "...",
 	'client_id'		: "...",
 	'client_secret'	: "...",
+	'auto-refresh'	: false
 };
 
 api.login(credential, function(err, res) {
@@ -74,7 +71,5 @@ var api = {
 };
 ```
 
-Finally
--------
-
+## Finally
 Enjoy!
