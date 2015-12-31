@@ -2,10 +2,9 @@ var ApiError = require('./ApiError');
 var async = require('async');
 var request = require('request');
 var qs = require('querystring');
-var clc = require('cli-color');
 var schedule = require('node-schedule');
 
-var DEBUG = false;
+var DEBUG = true;
 
 function FlowerPowerCloud() {
 	this._token = {};
@@ -78,9 +77,9 @@ FlowerPowerCloud.prototype.makeUrl = function(req, data) {
 };
 
 FlowerPowerCloud.prototype.loggerReq = function(req, data) {
-	console.log(clc.yellow(req.method), clc.green(req.path));
+	console.log(req.method, req.path);
 	for (var key in data) {
-		console.log(clc.xterm(45)(clc.underline(key + ":"), data[key]));
+		console.log(key + ":", data[key]));
 	}
 };
 
