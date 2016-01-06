@@ -4,7 +4,7 @@ var request = require('request');
 var qs = require('querystring');
 var schedule = require('node-schedule');
 
-var DEBUG = false;
+const DEBUG = true;
 
 function FlowerPowerCloud() {
 	this._token = {};
@@ -17,7 +17,8 @@ function FlowerPowerCloud() {
 		'getSyncGarden': {method: 'GET/json', path: '/sensor_data/v4/garden_locations_status', auth: true},
 		'getProfile': {method: 'GET/json', path: '/user/v4/profile', auth: true},
 		'sendSamples': {method: 'PUT/json', path: '/sensor_data/v5/sample', auth: true},
-		'getSyncData': {method: 'GET/json', path: '/sensor_data/v3/sync', auth: true}
+		'getSyncData': {method: 'GET/json', path: '/sensor_data/v3/sync', auth: true},
+		'getLocationSamples': {method: 'GET/json', path: '/sensor_data/v2/sample/location/:location_identifier', auth: true}
 	};
 
 	for (var item in api) {
@@ -104,26 +105,28 @@ FlowerPowerCloud.prototype.invoke = function(req, data, callback) {
 		else if (callback) {
 			var results = body;
 
-			if (typeof results.sensors != 'undefined') {
+			if (results.sensors) {
 				var sensors = {};
-				for (var i = 0; i < results.sensors.length; i++) {
-					if (typeof results.sensors[i].sensor_serial != 'undefined' && results.sensors[i].sensor_serial) {
-						sensors[results.sensors[i].sensor_serial] = results.sensors[i];
+				for (var sensor of results.sensors) {
+					if (sensor.sensor_serial) {
+						sensors[sensor.sensor_serial] = sensor;
 					}
 				}
 				results.sensors = sensors;
 			}
-			if (typeof results.locations != 'undefined') {
+			if (results.locations) {
 				var locations = {};
-				for (var i = 0; i < results.locations.length; i++) {
-					if (typeof results.locations[i].sensor_serial != 'undefined' && results.locations[i].sensor_serial) {
-						locations[results.locations[i].sensor_serial] = results.locations[i];
+				for (var location of results.locations) {
+					if (location.sensor_serial) {
+						locations[location.sensor_serial] = location;
 					}
 				}
 				results.locations = locations;
 			}
-			results.sensors = self.concatJson(results.sensors, results.locations);
-			delete results.locations;
+			if (results.sensors && results.locations) {
+				results.sensors = self.concatJson(results.sensors, results.locations);
+				delete results.locations;
+			}
 			return callback(null, results);
 		}
 		else throw "Give me a callback";
@@ -157,7 +160,7 @@ FlowerPowerCloud.prototype.setToken = function(token, callback) {
 		});
 		job.schedule(new Date(Date.now() + (token['expires_in'] - 1440) * 1000));
 	}
-	if (typeof callback != 'undefined') callback(null, token);
+	if (typeof callback == 'function') callback(null, token);
 }
 
 FlowerPowerCloud.prototype.refresh = function(token) {
@@ -207,6 +210,5 @@ FlowerPowerCloud.prototype.concatJson = function(json1, json2) {
 	}
 	return dest;
 }
-
 
 module.exports = FlowerPowerCloud;
