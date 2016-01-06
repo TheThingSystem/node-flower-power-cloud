@@ -53,7 +53,7 @@ Every method have the sema pattern:
 ```js
 api.methodName([data,] callback);
 
-typeof data == object // json
+typeof data == 'object' // json
 callback == function(error, results);
 
 // Call them
@@ -67,8 +67,26 @@ var api = {
 	'getSyncGarden': {method: 'GET/json', path: '/sensor_data/v4/garden_locations_status', auth: true},
 	'getProfile': {method: 'GET/json', path: '/user/v4/profile', auth: true},
 	'sendSamples': {method: 'PUT/json', path: '/sensor_data/v5/sample', auth: true},
-	'getSyncData': {method: 'GET/json', path: '/sensor_data/v3/sync', auth: true}
+	'getSyncData': {method: 'GET/json', path: '/sensor_data/v3/sync', auth: true},
+	'getLocationSamples': {method: 'GET/json', path: '/sensor_data/v2/sample/location/:location_identifier', auth: true}
 };
+```
+#### Param in url
+```js
+// Api which need parameters into url
+'anExample': {method: 'GET/json', path: '/:this/is/an/:example'}
+
+api.anExample({
+	url: {
+		this: 'flower',
+		example: 'organ'
+	},
+	param1: '...',
+	param2: '...'
+}, callback);
+
+// Become
+'/flower/is/an/organ'
 ```
 
 ## Finally
