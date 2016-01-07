@@ -14,16 +14,18 @@ ApiError.prototype = new Error;
 ApiError.prototype.toString = function() {
 	var str = "CODE: " + this.code;
 
-	for (var i = 0; i < this.errors.length; i++) {
+	for (var error of this.errors) {
 		str += "\n";
 
-		if (this.errors[i].error && this.errors[i].error_description) {
-			str += this.errors[i].error + ": " + this.errors[i].error_description;
-		} else if (this.errors[i].error_code && this.errors[i].error_message) {
-			str += this.errors[i].error_code + ": " + this.errors[i].error_message;
+		if (error.error && error.error_description) {
+			str += error.error + ": " + error.error_description;
+		} else if (error.error_code && error.error_message) {
+			str += error.error_code + ": " + error.error_message;
+		} else if (typeof error == 'string') {
+			str += error;
 		} else {
-			var key = Object.keys(this.errors[i])[0];
-			str += key + ": " + this.errors[i][key];
+			var key = Object.keys(error)[0];
+			str += key + ": " + error[key];
 		}
 
 	}

@@ -14,11 +14,20 @@ function FlowerPowerCloud() {
 
 	var self = this;
 	var api = {
-		'getSyncGarden': {method: 'GET/json', path: '/sensor_data/v4/garden_locations_status', auth: true},
+		// Profile
 		'getProfile': {method: 'GET/json', path: '/user/v4/profile', auth: true},
+		'getUserVersions': {method: 'GET/json', path: '/user/v1/versions', auth: true},
+
+		// Garden
+		'getSyncGarden': {method: 'GET/json', path: '/sensor_data/v4/garden_locations_status', auth: true},
 		'sendSamples': {method: 'PUT/json', path: '/sensor_data/v5/sample', auth: true},
 		'getSyncData': {method: 'GET/json', path: '/sensor_data/v3/sync', auth: true},
-		'getLocationSamples': {method: 'GET/json', path: '/sensor_data/v2/sample/location/:location_identifier', auth: true}
+		'getFirmwareUpdate': {method: 'GET/json', path: '/sensor_data/v1/firmware_update', auth: true},
+		'getLocationSamples': {method: 'GET/json', path: '/sensor_data/v2/sample/location/:location_identifier', auth: true},
+		'getStatistics': {method: 'GET/json', path: '/sensor_data/v1/statistics/:location_identifier', auth: true},
+
+		// Images
+		'getImageLocation': {method: 'GET/json', path: '/image/v3/location/user_images/:location_identifier', auth: true},
 	};
 
 	for (var item in api) {
@@ -44,17 +53,17 @@ FlowerPowerCloud.prototype.makeHeader = function(req, data) {
 
 	switch (type) {
 		case 'urlencoded':
-			options.body = qs.stringify(data);
-			options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-			break;
+		options.body = qs.stringify(data);
+		options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+		break;
 		case 'json':
-			options.body = JSON.stringify(data);
-			options.headers['Content-Type'] = 'application/json';
-			break;
+		options.body = JSON.stringify(data);
+		options.headers['Content-Type'] = 'application/json';
+		break;
 		default:
-			options.body = data;
-			options.headers['Content-Type'] = 'text/plain';
-			break;
+		options.body = data;
+		options.headers['Content-Type'] = 'text/plain';
+		break;
 	}
 
 	options.url = FlowerPowerCloud.url + req.path;
@@ -97,7 +106,11 @@ FlowerPowerCloud.prototype.invoke = function(req, data, callback) {
 
 	if (DEBUG) console.log(options);
 	request(options, function(err, res, body) {
-		if (typeof body == 'string') body = JSON.parse(body);
+		if (typeof body == 'string') {
+			try {
+				body = JSON.parse(body);
+			} catch (e) {};
+		}
 		if (err) callback(err, null);
 		else if (res.statusCode != 200 || (body.errors && body.errors.length > 0)) {
 			return callback(new ApiError(res.statusCode, body), null);
@@ -137,7 +150,7 @@ FlowerPowerCloud.prototype.login = function(data, callback) {
 	var req = {method: 'POST/urlencoded', path: '/user/v2/authenticate'};
 	var self = this;
 
-	if (data['auto-refresh']) {
+	if (typeof data['auto-refresh'] != 'undefined') {
 		self.autoRefresh = data['auto-refresh'];
 		delete data['auto-refresh'];
 	}
@@ -210,5 +223,26 @@ FlowerPowerCloud.prototype.concatJson = function(json1, json2) {
 	}
 	return dest;
 }
+
+// 'url1': {
+// 	'getProfile',
+// 	'getUserVersions',
+// 	'getSyncGarden',
+// 	'sendSamples',
+// 	'getSyncData',
+// 	'getFirmwareUpdate',
+// 	'getLocationSamples',
+// 	'getStatistics',
+// },
+// 'url2': {
+// 	'searchName',
+// 	'suggest',
+// 	'suggestLocation'
+// },
+// 'url3': {
+// 	'infoPlant',
+// 	'plantdataVersion',
+// 	'listPopularityPlant',
+// }
 
 module.exports = FlowerPowerCloud;

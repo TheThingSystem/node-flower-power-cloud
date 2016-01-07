@@ -43,7 +43,7 @@ api.login(credential, function(err, res) {
 });
 ```
 
-### Get garden configuration
+### Get garden configuration (and specials methods)
 ```js
 api.getGarden(function(error, garden));
 ```
@@ -51,25 +51,41 @@ api.getGarden(function(error, garden));
 ### Communicate with Cloud
 Every method have the sema pattern:
 ```js
+// For example:
+'methodName': {method: 'GET/json', path: '/im/a/flower/', auth: true}
+// Call like this:
 api.methodName([data,] callback);
 
-typeof data == 'object' // json
-callback == function(error, results);
-
-// Call them
-api.getGarden(callback);
-api.getSyncGarden(callback);
-api.getSyncData(callback);
-api.sendSamples(data, callback);
-
-// More details into ./FlowerPowerCloud.js
+// 'data' is optional, 'callback' is required
+data = {
+	url: {}
+	param1,
+	param2,
+	...
+}
+callback = function(error, results);
+```
+```js
+// Find all methods in ./FlowerPowerCloud.js
 var api = {
-	'getSyncGarden': {method: 'GET/json', path: '/sensor_data/v4/garden_locations_status', auth: true},
+	// Profile
+	'login': {method: 'POST/urlencoded', path: '/user/v2/authenticate', auth: false},
+	'refresh': {method: 'POST/urlencoded', path: '/user/v2/authenticate', auth: false},
 	'getProfile': {method: 'GET/json', path: '/user/v4/profile', auth: true},
+	'getUserVersions': {method: 'GET/json', path: '/user/v1/versions', auth: true},
+
+	// Garden
+	'getSyncGarden': {method: 'GET/json', path: '/sensor_data/v4/garden_locations_status', auth: true},
 	'sendSamples': {method: 'PUT/json', path: '/sensor_data/v5/sample', auth: true},
 	'getSyncData': {method: 'GET/json', path: '/sensor_data/v3/sync', auth: true},
-	'getLocationSamples': {method: 'GET/json', path: '/sensor_data/v2/sample/location/:location_identifier', auth: true}
+	'getFirmwareUpdate': {method: 'GET/json', path: '/sensor_data/v1/firmware_update', auth: true},
+	'getLocationSamples': {method: 'GET/json', path: '/sensor_data/v2/sample/location/:location_identifier', auth: true},
+	'getStatistics': {method: 'GET/json', path: '/sensor_data/v1/statistics/:location_identifier', auth: true},
+
+	// Images
+	'getImageLocation': {method: 'GET/json', path: '/image/v3/location/user_images/:location_identifier', auth: true},
 };
+
 ```
 #### Param in url
 ```js
