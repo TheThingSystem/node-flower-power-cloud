@@ -9,7 +9,8 @@ function ApiError(code, body) {
 	return (this);
 }
 
-ApiError.prototype = new Error;
+ApiError.prototype = Object.create(Error.prototype);
+ApiError.prototype.constructor = ApiError;
 
 ApiError.prototype.toString = function() {
 	var str = "CODE: " + this.code;
@@ -27,7 +28,7 @@ ApiError.prototype.toString = function() {
 			var key = Object.keys(error)[0];
 			str += key + ": " + error[key];
 		}
-
+		
 	}
 	return (str);
 }

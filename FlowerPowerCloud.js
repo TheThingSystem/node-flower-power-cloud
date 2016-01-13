@@ -17,6 +17,7 @@ function FlowerPowerCloud() {
 		// Profile
 		'getProfile': {method: 'GET/json', path: '/user/v4/profile', auth: true},
 		'getUserVersions': {method: 'GET/json', path: '/user/v1/versions', auth: true},
+		'verify': {method: 'GET/json', path: '/user/v1/verify', auth: true},
 
 		// Garden
 		'getSyncGarden': {method: 'GET/json', path: '/sensor_data/v4/garden_locations_status', auth: true},
