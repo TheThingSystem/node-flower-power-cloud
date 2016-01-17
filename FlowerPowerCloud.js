@@ -4,7 +4,7 @@ var request = require('request');
 var qs = require('querystring');
 var schedule = require('node-schedule');
 
-const DEBUG = true;
+const DEBUG = false;
 
 function FlowerPowerCloud() {
 	this._token = {};
@@ -101,6 +101,9 @@ FlowerPowerCloud.prototype.invoke = function(req, data, callback) {
 	if (typeof data == 'function') {
 		callback = data;
 		data = null;
+	}
+	if (data && typeof data !== 'object') {
+		return callback(new Error('Data is not a json'));
 	}
 	req = self.makeUrl(req, data);
 	options = self.makeHeader(req, data);
