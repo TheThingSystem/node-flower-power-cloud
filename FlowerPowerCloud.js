@@ -37,7 +37,7 @@ function FlowerPowerCloud() {
 	return this;
 };
 
-FlowerPowerCloud.url = 'https://apiflowerpower.parrot.com';
+FlowerPowerCloud.url = 'https://api-flower-power-pot.parrot.com';
 
 FlowerPowerCloud.prototype.makeReqFunction = function(name, req) {
 	var self = this;
