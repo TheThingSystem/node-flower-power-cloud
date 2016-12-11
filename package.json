@@ -1,22 +1,31 @@
 {
-  "name"           : "flower-power-cloud"
-, "version"        : "0.2.1"
-, "description"    : "A node.js module to interface with the cloud service for the Parrot Flower Power"
-, "author"         : {
-    "name"         : "Marshall Rose"
-  , "email"        : "mrose17@gmail.com"
-  }
-, "repository"     : {
-    "type"         : "git"
-  , "url"          : "https://github.com/TheThingSystem/node-flower-power-cloud.git"
-  } 
-, "bugs"           : {
-    "url"          : "https://github.com/TheThingSystem/node-flower-power-cloud/issues"
-  }
-, "keywords"       : [ "Parrot", "Flower Power" ]
-, "main"           : "./flower-power-cloud.js"
-, "engines"        : {
-    "node"         : ">=0.8"
-  }
-, "readmeFilename" : "README.md"
+  "name": "flower-power-api",
+  "version": "2.0.1",
+  "description": "A node.js module which use the Parrot Flower Power API",
+  "author": "Bruno Sautron <sautron.brunojj@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Parrot-Developers/node-flower-power-cloud.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Parrot-Developers/node-flower-power-cloud/issues"
+  },
+  "keywords": [
+    "Parrot",
+    "Flower Power"
+  ],
+  "main": "./FlowerPowerCloud.js",
+  "engines": {
+    "node": ">=0.8"
+  },
+  "dependencies": {
+    "async": "^1.5.0",
+    "node-schedule": "^0.6.0",
+    "request": "^2.67.0"
+  },
+  "homepage": "https://github.com/Parrot-Developers/node-flower-power-cloud#readme",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "ISC"
 }
