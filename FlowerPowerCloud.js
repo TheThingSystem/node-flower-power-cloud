@@ -21,7 +21,9 @@ function FlowerPowerCloud() {
 
 		// Garden
 		'getSyncGarden': {method: 'GET/json', path: '/sensor_data/v4/garden_locations_status', auth: true},
-		'sendSamples': {method: 'PUT/json', path: '/sensor_data/v5/sample', auth: true},
+		'getConfiguration': {method: 'GET/json', path: '/garden/v2/configuration', auth: true},
+		'getGarden': {method: 'GET/json', path: '/garden/v1/status', auth: true},
+		'sendSamples': {method: 'PUT/json', path: '/sensor_data/v8/sample', auth: true},
 		'getSyncData': {method: 'GET/json', path: '/sensor_data/v3/sync', auth: true},
 		'getFirmwareUpdate': {method: 'GET/json', path: '/sensor_data/v1/firmware_update', auth: true},
 		'getLocationSamples': {method: 'GET/json', path: '/sensor_data/v2/sample/location/:location_identifier', auth: true},
@@ -122,28 +124,6 @@ FlowerPowerCloud.prototype.invoke = function(req, data, callback) {
 		else if (callback) {
 			var results = body;
 
-			if (results.sensors) {
-				var sensors = {};
-				for (var sensor of results.sensors) {
-					if (sensor.sensor_serial) {
-						sensors[sensor.sensor_serial] = sensor;
-					}
-				}
-				results.sensors = sensors;
-			}
-			if (results.locations) {
-				var locations = {};
-				for (var location of results.locations) {
-					if (location.sensor_serial) {
-						locations[location.sensor_serial] = location;
-					}
-				}
-				results.locations = locations;
-			}
-			if (results.sensors && results.locations) {
-				results.sensors = self.concatJson(results.sensors, results.locations);
-				delete results.locations;
-			}
 			return callback(null, results);
 		}
 		else throw "Give me a callback";
@@ -197,21 +177,17 @@ FlowerPowerCloud.prototype.refresh = function(token) {
 	});
 };
 
-FlowerPowerCloud.prototype.getGarden = function(callback) {
-	var self = this;
-
-	async.parallel({
-		syncGarden: function(callback) {
-			self.getSyncGarden(callback);
-		},
-		syncData: function(callback) {
-			self.getSyncData(callback);
-		}
-	}, function(err, res) {
-		if (err) callback(err);
-		else callback(null, self.concatJson(res.syncData, res.syncGarden));
-	});
-};
+// FlowerPowerCloud.prototype.getGarden = function(callback) {
+// 	var self = this;
+//
+// 	async.parallel({
+// 		syncGarden: self.getSyncGarden,
+// 		syncData: self.getSyncData,
+// 	}, function(err, res) {
+// 		if (err) callback(err);
+// 		else callback(null, self.concatJson(res.syncData, res.syncGarden));
+// 	});
+// };
 
 FlowerPowerCloud.prototype.concatJson = function(json1, json2) {
 	var dest = json1;
